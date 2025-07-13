@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PAYMENT MISTERY STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: black;
+      color: #ff4d4d; /* Changed all text to red */
+      text-align: center;
+      overflow-x: hidden;
+      padding: 0;
+    }
+    
+    #loader-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 99999;
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #ff4d4d;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+      box-sizing: border-box;
+      animation: rotation 2s linear infinite;
+      box-shadow: 0 0 12px #ff4d4d, 0 0 24px #ff4d4d;
+    }
+
+    .loader::after {
+      content: '';
+      box-sizing: border-box;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 4px solid;
+      border-color: #ff4d4d transparent;
+      box-shadow: 0 0 12px #ff4d4d, 0 0 24px #ff4d4d;
+    }
+
+    @keyframes rotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #ff4d4d;
+      text-shadow: 0 0 8px #ff4d4d;
+    }
+
+    @keyframes bounceQR {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .qr-bounce {
+      animation: bounceQR 1.5s infinite ease-in-out;
+      border: 2px solid #ff4d4d;
+    }
+
+    /* Main App Styles */
+    #main-app {
+      display: none;
+    }
+
+    .shine {
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background: linear-gradient(135deg, rgba(255,77,77,0.2), rgba(255,77,77,0));
+      transform: rotate(45deg);
+      animation: shine 4s infinite linear;
+      z-index: 0;
+    }
+
+    @keyframes shine {
+      0% { transform: translate(-100%, -100%) rotate(45deg); }
+      100% { transform: translate(100%, 100%) rotate(45deg); }
+    }
+
+    .welcome-message {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      color: #ff4d4d; /* Changed to red */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      z-index: 9999;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.2em;
+      animation: fadeInDown 1s ease-in-out;
+      color: #ff4d4d; /* Changed to red */
+      text-shadow: 0 0 10px #ff4d4d;
+    }
+
+    p {
+      font-size: 1.2em;
+      color: #ff4d4d; /* Changed to red */
+      animation: fadeInUp 1s ease-in-out;
+    }
+
+    @keyframes fadeInDown {
+      0% { opacity: 0; transform: translateY(-30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .qr img {
+      width: 220px;
+      border-radius: 12px;
+      margin: 30px auto;
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 20px #ff4d4d;
+      border: 2px solid #ff4d4d;
+    }
+
+    .qr:hover img { 
+      transform: scale(1.08); 
+      box-shadow: 0 0 30px #ff4d4d;
+    }
+
+    .collapsible-container {
+      max-width: 500px;
+      margin: 30px auto;
+      background-color: rgba(30, 0, 0, 0.7);
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid #ff4d4d;
+      box-shadow: 0 0 15px #ff4d4d;
+    }
+
+    .collapsible {
+      background: linear-gradient(45deg, #ff4d4d, #990000, #ff4d4d);
+      background-size: 200% 200%;
+      animation: gradientBtn 3s ease infinite;
+      color: white;
+      cursor: pointer;
+      padding: 14px;
+      width: 100%;
+      border: none;
+      font-size: 1.1em;
+      border-radius: 10px;
+      margin-top: 10px;
+      text-align: center;
+      transition: all 0.3s;
+      border: 1px solid #ff9999;
+    }
+
+    .collapsible:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 15px #ff4d4d;
+    }
+
+    .content {
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      color: #ff4d4d; /* Changed to red */
+      border-radius: 10px;
+      margin-top: 5px;
+      background: rgba(50, 0, 0, 0.5);
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 40px;
+      gap: 12px;
+    }
+
+    .btn-link {
+      padding: 14px 24px;
+      background: linear-gradient(45deg, #ff4d4d, #990000, #ff4d4d);
+      background-size: 200% 200%;
+      animation: gradientBtn 4s ease infinite;
+      color: white;
+      font-weight: 600;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-block;
+      border: 1px solid #ff9999;
+      box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+    }
+
+    .btn-link:hover { 
+      transform: scale(1.08);
+      box-shadow: 0 0 20px #ff4d4d;
+    }
+
+    @keyframes gradientBtn {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .subtitle {
+      color: #ff4d4d; /* Changed to red */
+      margin: 15px 0;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+<div id="loader-container">
+  <span class="loader"></span>
+  <div class="loader-text">Loading...</div>
+</div>
+
+<div id="main-app">
+  <div class="shine"></div>
+
+  <div id="welcome-message" class="welcome-message">
+    <h1>HELLO, WELCOME TO MISTERY STORE</h1>
+    <p>Welcome To Mistery Store Payment</p>
+    <p>Jangan sampe salah transfer ya say</p>
+    <button id="go-to-payment" class="btn-link">go to payment</button>
+  </div>
+
+  <audio id="clickSound" src="https://files.catbox.moe/0i11yd.mp3"></audio>
+
+  <div id="main-content" style="display: none;">
+    <h1>Payment Methods</h1>
+    <p>Silahkan pilih pembayaran</p>
+
+    <div class="qr" onclick="zoomQR()">
+      <img class="qr-bounce" src="https://files.catbox.moe/oalxqf.jpg">
+    </div>
+
+    <p class="subtitle">Minta qr ke admin langsung aja ya :)</p>
+
+    <div class="collapsible-container">
+      <button class="collapsible">► E-Wallet</button>
+      <div class="content">
+        <p>DANA: 085695049437</p>
+        <p>OVO: Tidak tersedia</p>
+        <p>GOPAY: Tidak tersedia</p>
+      </div>
+
+      <button class="collapsible">► Banking</button>
+      <div class="content">
+        <p>BCA: tidak tersedia</p>
+        <p>SEA BANK: Tidak tersedia</p>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <a href="https://wa.me/6285695049437" class="btn-link" target="_blank">WhatsApp</a>
+      <a href="https://t.me/Mysteryid505" class="btn-link" target="_blank">Telegram</a>
+      <a href="https://www.youtube.com/@playergtp" class="btn-link" target="_blank">YouTube</a>
+      <a href="https://whatsapp.com/channel/0029Vb2oA1fLCoX3LmMKZN07" class="btn-link" target="_blank">Channel WhatsApp</a>
+      <a href="https://tiktok.com/@lightsecrethosting" class="btn-link" target="_blank">Tiktok</a>
+      <a href="https://whatsapp.com/channel/0029Vb2oA1fLCoX3LmMKZN07" class="btn-link" target="_blank">Channel Testimoni</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Show main app when page loads
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      document.getElementById('loader-container').style.display = 'none';
+      document.getElementById('main-app').style.display = 'block';
+      
+      // Set background image for main app
+      document.body.style.background = "url('https://files.catbox.moe/ixwoof.jpg') no-repeat center center fixed";
+      document.body.style.backgroundSize = "cover";
+    }, 2000);
+  });
+
+  // Go to payment button
+  document.getElementById('go-to-payment').addEventListener('click', function() {
+    document.getElementById('welcome-message').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    
+    // Play click sound
+    const clickSound = document.getElementById('clickSound');
+    clickSound.play().catch(e => console.log('Audio play failed:', e));
+  });
+
+  // Collapsible sections
+  document.querySelectorAll(".collapsible").forEach(btn => {
+    btn.addEventListener("click", function() {
+      this.classList.toggle("active");
+      const content = this.nextElementSibling;
+      content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
+    });
+  });
+
+  // Zoom QR function
+  function zoomQR() {
+    const qrImg = document.querySelector('.qr img');
+    qrImg.style.transform = qrImg.style.transform === 'scale(1.5)' ? 'scale(1)' : 'scale(1.5)';
+  }
+</script>
+</body>
+  </html>
